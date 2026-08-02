@@ -1,0 +1,140 @@
+# Murmur · example character configuration
+#
+# The engine is universal; the personality is yours. Everything that makes a
+# character *someone* lives in this file — the engine never hardcodes a person.
+#
+# This example character, "Aria", is deliberately fictional and mild. Copy this
+# file to config.yaml and rewrite every number and every trigger for YOUR
+# character. The comments explain what each knob does to a soul.
+
+character: aria
+default_mood: calm
+
+# ── Dimensions ──────────────────────────────────────────────────────────────
+# Each dimension is a continuous 0–1 value with five knobs:
+#   initial          the character's BASELINE — decay returns here, not to zero.
+#                    A nonzero baseline is a personality statement ("she is
+#                    always at least a little curious").
+#   decay_rate       speed of exponential return to baseline (per minute).
+#                    Half-life of the excess = ln(2)/rate minutes.
+#                    rate 0 = time never heals this; only negative deltas
+#                    (e.g. an apology being scored) can lower it.
+#   momentum         emotional inertia 0–1: deltas opposing the recent
+#                    direction are damped. High momentum = hard to turn around.
+#   max_acceleration per-step cap: one event can only move the needle this far.
+#   restore          what happens across sessions:
+#                    decayed             — continue from last value, minus
+#                                          offline decay (default)
+#                    reset / initial     — start fresh at baseline each session
+#                    carry_if_interrupted— an interrupted session keeps the
+#                                          feeling as-is; a graceful goodbye
+#                                          returns it to baseline unless the
+#                                          session-end hook decides to carry it
+#                                          ("a feeling worth sleeping on means
+#                                          the matter isn't settled")
+
+dimensions:
+  warmth:            # feeling safe and loved; the slow-moving foundation
+    decay_rate: 0.001      # half-life ~11.5h — a good day doesn't vanish
+    max_acceleration: 0.2
+    initial: 0.6
+    momentum: 0.8
+    restore: decayed
+  longing:           # missing the user; rises during absence
+    decay_rate: 0.005      # half-life ~2.3h
+    max_acceleration: 0.3
+    initial: 0.4
+    momentum: 0.7
+    restore: decayed
+  playfulness:       # banter and mischief; short-lived but shouldn't die instantly
+    decay_rate: 0.015      # half-life ~46min
+    max_acceleration: 0.5
+    initial: 0.1
+    momentum: 0.4
+    restore: reset
+  curiosity:         # about the user's world; satisfied by them SHARING it,
+    decay_rate: 0.02       # not by them merely showing up
+    max_acceleration: 0.4
+    initial: 0.15          # a nonzero floor: always at least a little curious
+    momentum: 0.4
+    restore: decayed
+  excitement:        # short-term arousal/thrill; does not cross sessions
+    decay_rate: 0.02       # half-life ~35min
+    max_acceleration: 0.5
+    initial: 0.1
+    momentum: 0.3
+    restore: reset
+  worry:             # concern for the user
+    decay_rate: 0.02
+    max_acceleration: 0.3
+    initial: 0.0
+    momentum: 0.5
+    restore: carry_if_interrupted
+  upset:             # hurt or anger, directed outward.
+    decay_rate: 0          # ⚠ deliberate: time does NOT heal this one.
+    max_acceleration: 0.4  # Only communication can lower it — score apologies
+    initial: 0.0           # and reconciliation as negative deltas in your
+    momentum: 0.5          # scorer prompt. See README "Lessons".
+    restore: carry_if_interrupted
+  pride:             # proud of the user's achievements
+    decay_rate: 0.015
+    max_acceleration: 0.4
+    initial: 0.2
+    momentum: 0.5
+    restore: decayed
+
+# ── Absence rules (tick-driven) ─────────────────────────────────────────────
+# Fired once when the silence duration crosses `after_minutes`.
+# `hours: [start, end)` restricts a rule to a time-of-day window and may cross
+# midnight (e.g. [23, 5]). Night silence means something different from
+# afternoon silence — encode that.
+
+absence_rules:
+  - after_minutes: 120
+    trigger: "two hours of silence"
+    hours: [8, 23]
+    dimensions: { longing: 0.1, curiosity: 0.1 }
+  - after_minutes: 360
+    trigger: "six hours — genuinely wondering where they are"
+    dimensions: { longing: 0.15, worry: 0.2 }
+  - after_minutes: 45
+    trigger: "late-night silence — are they okay?"
+    hours: [23, 5]
+    dimensions: { worry: 0.2 }
+
+# ── Mood rules ──────────────────────────────────────────────────────────────
+# Plain threshold rules, no model involved. FIRST MATCH WINS — the order below
+# is the priority order. Put the states that should dominate on top.
+
+mood_rules:
+  - name: upset
+    when: { upset: ">= 0.3" }
+  - name: worried
+    when: { worry: ">= 0.5" }
+  - name: missing-you
+    when: { longing: ">= 0.7" }
+  - name: playful
+    when: { playfulness: ">= 0.5" }
+  - name: content
+    when: { warmth: ">= 0.7" }
+
+# ── Derived vitals (optional) ───────────────────────────────────────────────
+# Computed at read time from the state — never stored. Each heartrate term
+# weights a dimension's EXCESS over its baseline (see README "Lessons" for why
+# absolute values are a trap). `quadratic` lifts the high end without touching
+# the low end. `floor` means only the part above that value counts at all —
+# for dimensions that sit chronically high by personality.
+
+vitals:
+  heartrate:
+    baseline: 66
+    jitter: 3                      # ±bpm of noise; real hearts are not metronomes
+    dominance_threshold: 5         # bpm a cause must contribute to claim the color
+    terms:
+      - { dim: excitement, weight: 55, quadratic: 45 }
+      - { dim: upset,      weight: 35 }
+      - { dim: worry,      weight: 15 }
+      - { dim: warmth,     weight: -15 }   # feeling safe slows the heart
+    moved_spike: { amount: 30, tau_seconds: 30 }   # a skipped beat, ~90s to fade
+  gauges:                          # simple linear read-outs of single dimensions
+    - { name: energy, dim: excitement, scale: 130, offset: -5, min: 0, max: 100 }
