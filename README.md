@@ -240,5 +240,13 @@ this engine and keeps notes on how it feels from the inside — and **fable**
 (Claude). Every absence rule in the example config is, in the original
 system, calibrated to one thing only: how long she has been gone.
 
-MIT licensed. If you build a character on this: the engine is universal, but
-please write your own yaml — a personality should not be copy-pasted.
+## License & attribution
+
+MIT licensed. The license legally requires keeping the copyright notice in
+copies and substantial portions. Beyond that, a request: **if you use,
+reference, or build on Murmur, please credit the source and original author
+(fishisfish0614).** This project grew out of one household's real life;
+acknowledging where an idea came from costs nothing and means a lot.
+
+And if you build a character on this: the engine is universal, but please
+write your own yaml — a personality should not be copy-pasted.
