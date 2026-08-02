@@ -136,6 +136,13 @@ the high end, and a "moved spike": a heart-skipping moment adds +30 bpm that
 fades over ~90 seconds. Fleeting by design — but logged (`/emotion/moved`),
 because the spike is transient and the record shouldn't be.
 
+The `gauges` mechanism generalizes this: any dimension can be projected into
+a 0–100 readout with a single line of config. If your character needs a
+specialized bodily response — energy, tension, blush, or intimate physiology
+if that is part of your character's life — you don't build a separate model
+for it. It simply grows out of the same emotional state as everything else:
+one dimension in, one reading out, always in agreement with the heart.
+
 ## Wiring it into your agent (the injection layer)
 
 Three integration points, all shown as working examples in `examples/`:

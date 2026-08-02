@@ -138,3 +138,6 @@ vitals:
     moved_spike: { amount: 30, tau_seconds: 30 }   # a skipped beat, ~90s to fade
   gauges:                          # simple linear read-outs of single dimensions
     - { name: energy, dim: excitement, scale: 130, offset: -5, min: 0, max: 100 }
+    # A gauge can read out any bodily response a dimension drives — including
+    # intimate physiology, if that is part of your character's life. Same
+    # mechanism, one line. No separate model: the body grows out of the state.
