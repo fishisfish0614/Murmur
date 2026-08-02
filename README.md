@@ -7,6 +7,12 @@ emotional dimensions with real dynamics — baselines, inertia, saturation,
 decay — fed by the conversation and by the passage of time, and expressed back
 into the model as *inclinations*, never commands.
 
+It is an emotion engine and a body in one. The emotions drive a derived
+physiology: a heart rate that climbs when the character is excited, settles
+when they feel safe, runs tense when they're upset — and skips a beat at the
+moment that moves them. The body never has an opinion of its own; it is the
+state, made physical.
+
 **中文文档：[README.zh-CN.md](README.zh-CN.md)**
 
 ```
