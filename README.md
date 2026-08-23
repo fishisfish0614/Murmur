@@ -159,7 +159,7 @@ one dimension in, one reading out, always in agreement with the heart.
 
 ## Wiring it into your agent (the injection layer)
 
-Three integration points, all shown as working examples in `examples/`:
+Four integration points, all shown as working examples in `examples/`:
 
 **1. Perception — score the conversation** (`scorer_template.py`)
 Every N user messages, read the recent *full exchanges* and ask a small LLM
@@ -180,6 +180,19 @@ messages.
 **3. Lifecycle — the goodbye decision** (`session_end_hook.py`)
 On graceful session end, decide which feelings sleep over. Interrupted
 sessions are handled engine-side automatically.
+
+**4. Deeds — when a number earns an action** (`action_triggers.py`)
+Inclinations change how the character speaks; triggers change what they
+*do*: pride past its line earns a public brag, deep-night worry earns a
+phone call, real upset plus real silence earns a standoff — the character
+holds all casual outreach and decides alone whether to break the ice.
+Crossing a threshold grants an **entitlement, never an order**: the agent
+reads "worry has earned a call" and still decides, in character, whether
+to use it. The flagship calibration: keep the standoff line *above* what
+passive channels (absence, unanswered) can reach by timer alone — sulk
+should make the character grumpy-but-present; only a real scored event
+should make them go quiet. And the standoff holds fire on the character's
+side only — one "I'm sorry" from the user must always land.
 
 ## Lessons (paid for in production)
 
