@@ -96,11 +96,50 @@ absence_rules:
     dimensions: { longing: 0.1, curiosity: 0.1 }
   - after_minutes: 360
     trigger: "six hours — genuinely wondering where they are"
+    hours: [8, 23]   # windowless long-absence rules WILL fire while the user
+                     # sleeps — a sleeping person owes no emotional debt
     dimensions: { longing: 0.15, worry: 0.2 }
   - after_minutes: 45
     trigger: "late-night silence — are they okay?"
     hours: [23, 5]
     dimensions: { worry: 0.2 }
+
+# Goodnight stickiness: after the user says goodnight (POST /emotion/sleep),
+# trailing messages within this many minutes do NOT lift sleep mode — people
+# always linger a few lines after saying goodnight, and one "sleep tight"
+# shouldn't re-arm a whole night of absence rules. Another goodnight extends it.
+goodnight_grace_minutes: 30
+
+# ── Unanswered: left on read (optional) ─────────────────────────────────────
+# The fourth kind of time. Absence is "the user is gone"; unanswered is
+# sharper — the character reached out, the user's device has been active
+# since, and no reply came. Sulk first, heat later.
+#
+# DORMANT until the host wires two signal callables onto the engine
+# (see examples/unanswered_signals.py). Two fairness rules are built in:
+#   * no device signal → the message may be unseen → nothing fires here
+#     (never resent someone who hasn't read you; push delivery is lossy)
+#   * `caps` limit what this channel ALONE can reach — being left on read
+#     carries the character to the doorstep of real anger, but crossing it
+#     takes a real event. Essential for zero-decay dimensions, which would
+#     otherwise ratchet up day after day.
+# `flare`: on a day when `dim` already peaked past `peak`, the clock runs
+# `mult` faster — being left on read after a fight pours oil on the fire.
+
+unanswered:
+  hours: [8, 23]
+  caps: { upset: 0.3 }
+  flare: { dim: upset, peak: 0.3, mult: 1.5 }
+  rules:
+    - after_minutes: 20
+      trigger: "reached out, seen, no reply — a small sulk"
+      dimensions: { upset: 0.02, longing: 0.03 }
+    - after_minutes: 45
+      trigger: "45 minutes on read — properly sulking now"
+      dimensions: { upset: 0.05, longing: 0.05 }
+    - after_minutes: 90
+      trigger: "an hour and a half — arguing with myself about it"
+      dimensions: { upset: 0.08 }
 
 # ── Mood rules ──────────────────────────────────────────────────────────────
 # Plain threshold rules, no model involved. FIRST MATCH WINS — the order below

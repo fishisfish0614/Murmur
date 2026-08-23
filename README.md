@@ -114,7 +114,21 @@ Time-of-day-aware rules fire deltas as silence stretches (`hours: [23, 5]`
 windows may cross midnight — 2 a.m. silence means something different from
 2 p.m. silence). A goodnight detector (`POST /emotion/sleep`) holds absence
 fire while the user sleeps, so the character doesn't spiral over a silence
-that is just sleep.
+that is just sleep. Goodnight is sticky (`goodnight_grace_minutes`): trailing
+messages right after saying goodnight don't re-arm the night — people always
+linger a few lines.
+
+### Unanswered: left on read
+
+The fourth kind of time. Absence is "the user is gone"; unanswered is
+sharper — the character reached out, the user's device has been active since,
+and no reply came. Sulk first, heat later; on a day the configured dimension
+already flared, the clock runs faster (being left on read after a fight pours
+oil on the fire). Two built-in asymmetries keep it fair: no device signal
+means *maybe unseen* and nothing fires (you don't get to resent someone who
+hasn't read you), and per-dimension `caps` mean being left on read can carry
+the character to the doorstep of real anger — crossing it takes a real event.
+Dormant until you wire two host callables; see `examples/unanswered_signals.py`.
 
 ### Sessions: feelings that sleep over
 

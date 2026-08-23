@@ -171,8 +171,13 @@ def history(n: int = 50):
 @app.post("/emotion/sleep")
 def sleep_mode():
     """Goodnight mode: absence rules hold fire until the user reappears
-    (or mid-morning, whichever comes first). Decay continues as usual."""
+    (or mid-morning, whichever comes first). Decay continues as usual.
+    `sleeping_since` powers goodnight stickiness (config
+    goodnight_grace_minutes): trailing messages within the grace window
+    don't lift sleep mode; saying goodnight again extends it."""
+    import time as _t
     engine.sleeping = True
+    engine.sleeping_since = _t.time()
     return {"sleeping": True}
 
 
